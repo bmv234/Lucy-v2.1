@@ -1,0 +1,248 @@
+openapi: 3.0.0
+info:
+  title: MeloTTS API
+  description: |
+    API for converting text to speech using MeloTTS. This API provides endpoints for listing available voices
+    and synthesizing text to speech in multiple languages.
+  version: '1.0.0'
+  contact:
+    name: MeloTTS Support
+servers:
+  - url: http://localhost:5050
+    description: Local development server
+  - url: https://your-production-server.com
+    description: Production server
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Use your API key as a Bearer token in the Authorization header.
+        For testing, you can use: `test_key`
+
+  schemas:
+    Voice:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "EN-US"
+          description: Unique identifier for the voice
+        name:
+          type: string
+          example: "English (American)"
+          description: Display name of the voice
+    
+    VoiceList:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        timestamp:
+          type: string
+          format: date-time
+        data:
+          type: object
+          properties:
+            voices:
+              type: array
+              items:
+                $ref: '#/components/schemas/Voice'
+              example:
+                - id: "EN-US"
+                  name: "English (American)"
+                - id: "EN-BR"
+                  name: "English (British)"
+                - id: "EN-IN"
+                  name: "English (Indian)"
+                - id: "EN-AU"
+                  name: "English (Australian)"
+                - id: "EN"
+                  name: "English (Default)"
+                - id: "ES"
+                  name: "Spanish"
+                - id: "FR"
+                  name: "French"
+                - id: "ZH"
+                  name: "Chinese"
+                - id: "JP"
+                  name: "Japanese"
+                - id: "KR"
+                  name: "Korean"
+    
+    SynthesisRequest:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+          description: The text to convert to speech
+          example: "Hello world"
+        voice:
+          type: string
+          description: |
+            Voice ID to use for synthesis. Available options:
+            - EN-US: English (American)
+            - EN-BR: English (British)
+            - EN-IN: English (Indian)
+            - EN-AU: English (Australian)
+            - EN: English (Default)
+            - ES: Spanish
+            - FR: French
+            - ZH: Chinese
+            - JP: Japanese
+            - KR: Korean
+          example: "EN-US"
+          default: "EN"
+        speed:
+          type: number
+          description: Speech speed multiplier
+          example: 1.0
+          default: 1.0
+          minimum: 0.1
+          maximum: 3.0
+    
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        timestamp:
+          type: string
+          format: date-time
+        error:
+          type: string
+          description: Error message
+
+paths:
+  /api/v1/voices:
+    get:
+      summary: List Available Voices
+      description: Returns a list of all available text-to-speech voices
+      operationId: listVoices
+      tags:
+        - voices
+      responses:
+        '200':
+          description: Successful response with list of voices
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceList'
+              example:
+                success: true
+                timestamp: "2023-07-20T12:00:00.000Z"
+                data:
+                  voices:
+                    - id: "EN-US"
+                      name: "English (American)"
+                    - id: "EN-BR"
+                      name: "English (British)"
+                    - id: "EN-IN"
+                      name: "English (Indian)"
+                    - id: "EN-AU"
+                      name: "English (Australian)"
+                    - id: "EN"
+                      name: "English (Default)"
+                    - id: "ES"
+                      name: "Spanish"
+                    - id: "FR"
+                      name: "French"
+                    - id: "ZH"
+                      name: "Chinese"
+                    - id: "JP"
+                      name: "Japanese"
+                    - id: "KR"
+                      name: "Korean"
+        '401':
+          description: Unauthorized - Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/synthesize:
+    post:
+      summary: Synthesize Text to Speech
+      description: Converts provided text to speech audio using the specified voice
+      operationId: synthesizeSpeech
+      tags:
+        - synthesis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SynthesisRequest'
+            examples:
+              english:
+                summary: English synthesis example
+                value:
+                  text: "Hello world"
+                  voice: "EN-US"
+                  speed: 1.0
+              spanish:
+                summary: Spanish synthesis example
+                value:
+                  text: "Hola mundo"
+                  voice: "ES"
+                  speed: 1.0
+              french:
+                summary: French synthesis example
+                value:
+                  text: "Bonjour le monde"
+                  voice: "FR"
+                  speed: 1.0
+      responses:
+        '200':
+          description: Audio file generated successfully
+          content:
+            audio/wav:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Bad Request - Missing or invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Too Many Requests - Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'

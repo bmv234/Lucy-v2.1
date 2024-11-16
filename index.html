@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self' wss://localhost:8765;
+        script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net/;
+        worker-src 'self' blob: https://cdn.jsdelivr.net/;
+        connect-src 'self' wss://localhost:8765 https://cdn.jsdelivr.net/;
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' blob: data:;
+        media-src 'self' blob:;
+        child-src 'self' blob:;
+        font-src 'self';
+        object-src 'none';
+    ">
+    <title>Lucy v4 - Teacher's Page</title>
+    <!-- Load ONNX Runtime -->
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.14.0/dist/ort.js" crossorigin="anonymous"></script>
+    <!-- Configure VAD paths -->
+    <script>
+        // Configure WASM for VAD
+        window.crossOriginIsolated = true;
+        window.WEBVAD_WORKER_PATH = "https://cdn.jsdelivr.net/npm/@ricky0123/vad-web@0.0.7/dist/vad.worklet.bundle.min.js";
+        window.WEBVAD_WASM_PATH = "https://cdn.jsdelivr.net/npm/@ricky0123/vad-web@0.0.7/dist/vad.wasm";
+    </script>
+    <!-- Load VAD library -->
+    <script src="https://cdn.jsdelivr.net/npm/@ricky0123/vad-web@0.0.7/dist/bundle.min.js" crossorigin="anonymous"></script>
+    <!-- Load VAD worklet -->
+    <script>
+        // Load VAD worklet
+        async function loadVADWorklet() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                await audioContext.audioWorklet.addModule(window.WEBVAD_WORKER_PATH);
+                console.log('VAD worklet loaded successfully');
+                audioContext.close();
+            } catch (error) {
+                console.error('Error loading VAD worklet:', error);
+            }
+        }
+        // Load worklet when page loads
+        window.addEventListener('load', loadVADWorklet);
+    </script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-mode">
+    <div class="container">
+        <div class="controls-top">
+            <h1>Lucy v4 - Teacher's Page</h1>
+            <div class="top-controls">
+                <button id="darkModeToggle" class="toggle-btn">
+                    <span class="toggle-icon">☀️</span>
+                </button>
+                <a href="student.html" class="switch-page-btn" target="_blank">Switch to Student View</a>
+            </div>
+        </div>
+
+        <div class="language-controls">
+            <div class="select-container">
+                <label for="fromLanguage">From Language:</label>
+                <select id="fromLanguage" class="language-select"></select>
+            </div>
+            <div class="select-container">
+                <label for="toLanguage">To Language:</label>
+                <select id="toLanguage" class="language-select"></select>
+            </div>
+        </div>
+
+        <div class="recording-controls">
+            <button id="startButton" class="control-btn">
+                <span class="btn-icon">🎤</span> Start Listening
+            </button>
+            <button id="stopButton" class="control-btn" disabled>
+                <span class="btn-icon">⏹</span> Stop Listening
+            </button>
+            <button id="clearButton" class="control-btn">
+                <span class="btn-icon">🗑</span> Clear Results
+            </button>
+        </div>
+
+        <div class="results-container">
+            <div class="result-box">
+                <h3>Transcription</h3>
+                <textarea id="transcriptionText" readonly></textarea>
+            </div>
+            <div class="result-box">
+                <h3>Translation</h3>
+                <textarea id="translationText" readonly></textarea>
+            </div>
+        </div>
+    </div>
+    <script src="teacher.js"></script>
+</body>
+</html>

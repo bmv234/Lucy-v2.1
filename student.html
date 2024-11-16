@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' https://localhost:5000 http://localhost:5050; media-src 'self' blob:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;">
+    <title>Lucy v4 - Student's Page</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dark-mode">
+    <div class="container">
+        <div class="controls-top">
+            <h1>Lucy v4 - Student's Page</h1>
+            <div class="top-controls">
+                <button id="darkModeToggle" class="toggle-btn">
+                    <span class="toggle-icon">☀️</span>
+                </button>
+                <a href="index.html" class="switch-page-btn" target="_blank">Switch to Teacher View</a>
+            </div>
+        </div>
+
+        <div class="translation-container">
+            <div class="incoming-text">
+                <h3>Incoming Translation</h3>
+                <div id="incomingText" class="text-display"></div>
+            </div>
+        </div>
+
+        <div class="tts-controls">
+            <div class="voice-container">
+                <label for="voiceSelect">Voice</label>
+                <select id="voiceSelect" class="voice-select">
+                    <option value="EN">English (Default)</option>
+                    <option value="EN-US">English (American)</option>
+                    <option value="EN-BR">English (British)</option>
+                    <option value="EN-IN">English (Indian)</option>
+                    <option value="EN-AU">English (Australian)</option>
+                    <option value="ES">Spanish</option>
+                    <option value="FR">French</option>
+                    <option value="ZH">Chinese (with English)</option>
+                    <option value="JP">Japanese</option>
+                    <option value="KR">Korean</option>
+                </select>
+            </div>
+
+            <button id="playButton" class="control-btn">
+                <span class="btn-icon">▶</span>
+            </button>
+            
+            <div class="slider-container">
+                <label for="volumeControl">Volume</label>
+                <input type="range" id="volumeControl" min="0" max="1" step="0.1" value="1">
+            </div>
+
+            <div class="slider-container">
+                <label for="speedControl">Speed</label>
+                <input type="range" id="speedControl" min="0.5" max="2" step="0.1" value="1">
+            </div>
+        </div>
+
+        <div id="highlightedText" class="highlighted-text"></div>
+    </div>
+    <script src="student.js"></script>
+</body>
+</html>

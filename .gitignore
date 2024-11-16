@@ -1,0 +1,14 @@
+# Ignore virtual environment directories
+venv/
+.venv/
+
+# Ignore log files
+*.log
+
+# Ignore sensitive certificate and key files
+*.pem
+*.crt
+*.key
+
+# Ignore environment configuration files
+*.env
