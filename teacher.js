@@ -1,6 +1,6 @@
 // WebSocket connection
 let socket;
-const SERVER_URL = `wss://${window.location.hostname}:8765`;
+const SERVER_URL = `wss://${window.location.hostname}:8443`;
 
 // Audio context and processing nodes
 let audioContext;
