@@ -155,32 +155,25 @@ async def handle_client(websocket, path):
         logging.error(f"Error handling client {client_id}: {str(e)}", exc_info=True)
 
 def get_allowed_origins():
-    # Allow connections from localhost and IP on common development ports with HTTPS
+    # Get the machine's IP address
     ip = socket.gethostbyname(socket.gethostname())
-    return [
-        f"https://localhost:5000",
-        f"https://127.0.0.1:5000",
-        f"https://{ip}:5000",
-        f"https://localhost:3000",
-        f"https://127.0.0.1:3000",
-        f"https://{ip}:3000",
-        f"https://localhost:8000",
-        f"https://127.0.0.1:8000",
-        f"https://{ip}:8000",
-        # Add HTTP versions for development
-        f"http://localhost:5000",
-        f"http://127.0.0.1:5000",
-        f"http://{ip}:5000",
-        f"http://localhost:3000",
-        f"http://127.0.0.1:3000",
-        f"http://{ip}:3000",
-        f"http://localhost:8000",
-        f"http://127.0.0.1:8000",
-        f"http://{ip}:8000",
-        f"http://localhost:9000",
-        f"http://127.0.0.1:9000",
-        f"http://{ip}:9000"
-    ]
+    
+    # Create a list of allowed origins
+    origins = []
+    
+    # Add localhost and IP variations
+    for host in ['localhost', '127.0.0.1', ip, '10.30.11.51']:
+        for port in ['5000', '3000', '8000', '8443']:
+            # Add both HTTP and HTTPS
+            origins.extend([
+                f"http://{host}:{port}",
+                f"https://{host}:{port}"
+            ])
+    
+    # Allow null origin for local file access
+    origins.append("null")
+    
+    return origins
 
 async def main():
     try:
@@ -207,6 +200,7 @@ async def main():
         ) as server:
             logging.info(f"WebSocket server started on wss://{ip}:8443")
             logging.info(f"Also accessible via wss://localhost:8443")
+            logging.info(f"And accessible via wss://10.30.11.51:8443")
             logging.info(f"Allowed origins: {get_allowed_origins()}")
             await asyncio.Future()  # run forever
     except Exception as e:
