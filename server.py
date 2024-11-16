@@ -15,6 +15,7 @@ import ssl
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # Initialize device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -109,7 +110,8 @@ def translate(text, from_code, to_code):
 
 async def handle_client(websocket, path):
     client_id = id(websocket)
-    logging.info(f"New client connected: {client_id}")
+    client_info = websocket.remote_address if hasattr(websocket, 'remote_address') else 'Unknown'
+    logging.info(f"New client connected: {client_id} from {client_info}")
     
     try:
         # Send available language pairs to the client
@@ -154,54 +156,34 @@ async def handle_client(websocket, path):
     except Exception as e:
         logging.error(f"Error handling client {client_id}: {str(e)}", exc_info=True)
 
-def get_allowed_origins():
-    # Get the machine's IP address
-    ip = socket.gethostbyname(socket.gethostname())
-    
-    # Create a list of allowed origins
-    origins = []
-    
-    # Add localhost and IP variations
-    for host in ['localhost', '127.0.0.1', ip, '10.30.11.51']:
-        for port in ['5000', '3000', '8000', '8443']:
-            # Add both HTTP and HTTPS
-            origins.extend([
-                f"http://{host}:{port}",
-                f"https://{host}:{port}"
-            ])
-    
-    # Allow null origin for local file access
-    origins.append("null")
-    
-    return origins
-
 async def main():
     try:
-        # Set up SSL context with more permissive settings for development
+        # Set up SSL context with most permissive settings for development
         ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
         ssl_context.load_cert_chain('cert.pem', 'key.pem')
-        ssl_context.check_hostname = False  # Disable hostname checking for development
-        ssl_context.verify_mode = ssl.CERT_NONE  # Don't verify client certificates
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
         
         # Get the machine's IP address
         ip = socket.gethostbyname(socket.gethostname())
         
-        # Create WebSocket server with SSL and origins check
+        # Create WebSocket server with SSL
         async with websockets.serve(
             handle_client,
             "0.0.0.0",  # Listen on all interfaces
             8443,
             ssl=ssl_context,
-            origins=get_allowed_origins(),
-            ping_interval=20,
-            ping_timeout=20,
-            max_size=None,  # No message size limit
-            compression=None  # Disable compression for better compatibility
+            ping_interval=None,  # Disable ping/pong for development
+            ping_timeout=None,   # Disable ping/pong for development
+            max_size=None,       # No message size limit
+            compression=None,    # Disable compression for better compatibility
+            origins=None        # Allow all origins for development
         ) as server:
-            logging.info(f"WebSocket server started on wss://{ip}:8443")
-            logging.info(f"Also accessible via wss://localhost:8443")
-            logging.info(f"And accessible via wss://10.30.11.51:8443")
-            logging.info(f"Allowed origins: {get_allowed_origins()}")
+            logging.info(f"WebSocket server started on:")
+            logging.info(f"  - wss://{ip}:8443")
+            logging.info(f"  - wss://localhost:8443")
+            logging.info(f"  - wss://10.30.11.51:8443")
+            logging.info("Development mode: SSL verification disabled, all origins allowed")
             await asyncio.Future()  # run forever
     except Exception as e:
         logging.error(f"Failed to start server: {e}", exc_info=True)

@@ -52,8 +52,13 @@ def check_ssl_certificates():
     
     if not (cert_path.exists() and key_path.exists()):
         print("\nGenerating SSL certificates...")
-        os.system(f'openssl req -x509 -newkey rsa:2048 -keyout {key_path} -out {cert_path} -days 365 -nodes -subj "/CN=localhost"')
+        # Generate a more permissive certificate for development
+        os.system(f'openssl req -x509 -newkey rsa:2048 -keyout {key_path} -out {cert_path} -days 365 -nodes -subj "/CN=*"')
         print("SSL certificates generated successfully")
+        
+        # Set permissive permissions for development
+        os.chmod(cert_path, 0o666)
+        os.chmod(key_path, 0o666)
 
 def main():
     # Check and generate SSL certificates if needed
@@ -76,11 +81,15 @@ def main():
     print(f"Teacher's page: https://localhost:5000")
     print(f"Student's page: https://localhost:5000/student")
     print(f"WebSocket: wss://localhost:8443")
+    print("\nNetwork Access:")
+    print(f"Teacher's page: https://10.30.11.51:5000")
+    print(f"Student's page: https://10.30.11.51:5000/student")
+    print(f"WebSocket: wss://10.30.11.51:8443")
     print("\nImportant Notes:")
     print("1. All servers use self-signed certificates for secure connections")
     print("2. When first accessing the services, you'll need to:")
-    print("   a. Accept the security warning for https://{local_ip}:5000")
-    print("   b. Accept the security warning for wss://{local_ip}:8443")
+    print("   a. Accept the security warning for HTTPS connections")
+    print("   b. Accept the security warning for WebSocket connections")
     print("3. Firefox users may need to:")
     print("   a. Visit each HTTPS endpoint directly")
     print("   b. Add security exceptions")

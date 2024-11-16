@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 app = Flask(__name__, static_folder='.')
-CORS(app)
+# Allow CORS from any origin for development
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route('/')
 def serve_teacher():
@@ -115,9 +116,11 @@ if __name__ == '__main__':
     hostname = socket.gethostname()
     local_ip = socket.gethostbyname(hostname)
     
-    # SSL context
+    # SSL context with more permissive settings for development
     ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     ssl_context.load_cert_chain('cert.pem', 'key.pem')
+    ssl_context.check_hostname = False  # Disable hostname checking for development
+    ssl_context.verify_mode = ssl.CERT_NONE  # Don't verify client certificates
     
     print(f"\nLucy v4 Server Running!")
     print(f"======================")

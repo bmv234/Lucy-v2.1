@@ -3,18 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self' wss://*:8443;
-        script-src 'self' 'unsafe-eval' 'unsafe-inline' https://cdn.jsdelivr.net/;
-        worker-src 'self' blob: https://cdn.jsdelivr.net/;
-        connect-src 'self' wss://*:8443 https://cdn.jsdelivr.net/;
-        style-src 'self' 'unsafe-inline';
-        img-src 'self' blob: data:;
-        media-src 'self' blob:;
-        child-src 'self' blob:;
-        font-src 'self';
-        object-src 'none';
-    ">
     <title>Lucy v4 - Teacher's Page</title>
     <!-- Load ONNX Runtime -->
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.14.0/dist/ort.js" crossorigin="anonymous"></script>
