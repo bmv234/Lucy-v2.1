@@ -14,7 +14,14 @@ import pathlib
 import ssl
 
 # Set up logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('websocket_server.log')
+    ]
+)
 logger = logging.getLogger(__name__)
 
 # Initialize device
@@ -156,19 +163,48 @@ async def handle_client(websocket, path):
     except Exception as e:
         logging.error(f"Error handling client {client_id}: {str(e)}", exc_info=True)
 
+def verify_ssl_files():
+    cert_path = 'cert.pem'
+    key_path = 'key.pem'
+    
+    if not os.path.exists(cert_path) or not os.path.exists(key_path):
+        logging.error(f"SSL certificate files missing: cert.pem={os.path.exists(cert_path)}, key.pem={os.path.exists(key_path)}")
+        return False
+        
+    try:
+        # Try to load the certificates to verify they're valid
+        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        ssl_context.load_cert_chain(cert_path, key_path)
+        logging.info("SSL certificate files verified successfully")
+        return True
+    except Exception as e:
+        logging.error(f"Error verifying SSL certificate files: {str(e)}")
+        return False
+
 async def main():
     try:
+        # Verify SSL files first
+        if not verify_ssl_files():
+            raise Exception("SSL certificate verification failed")
+            
         # Set up SSL context with most permissive settings for development
         ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
         ssl_context.load_cert_chain('cert.pem', 'key.pem')
         ssl_context.check_hostname = False
         ssl_context.verify_mode = ssl.CERT_NONE
         
-        # Get the machine's IP address
-        ip = socket.gethostbyname(socket.gethostname())
+        # Get all available network interfaces
+        hostname = socket.gethostname()
+        ip = socket.gethostbyname(hostname)
+        
+        # Log all network interfaces
+        interfaces = socket.getaddrinfo(hostname, None)
+        logging.info("Available network interfaces:")
+        for interface in interfaces:
+            logging.info(f"  - {interface[4][0]}")
         
         # Create WebSocket server with SSL
-        async with websockets.serve(
+        server = await websockets.serve(
             handle_client,
             "0.0.0.0",  # Listen on all interfaces
             8443,
@@ -178,13 +214,17 @@ async def main():
             max_size=None,       # No message size limit
             compression=None,    # Disable compression for better compatibility
             origins=None        # Allow all origins for development
-        ) as server:
-            logging.info(f"WebSocket server started on:")
-            logging.info(f"  - wss://{ip}:8443")
-            logging.info(f"  - wss://localhost:8443")
-            logging.info(f"  - wss://10.30.11.51:8443")
-            logging.info("Development mode: SSL verification disabled, all origins allowed")
-            await asyncio.Future()  # run forever
+        )
+        
+        logging.info(f"WebSocket server started successfully")
+        logging.info(f"Listening on:")
+        logging.info(f"  - wss://{ip}:8443")
+        logging.info(f"  - wss://localhost:8443")
+        logging.info(f"  - wss://10.30.11.51:8443")
+        logging.info("Development mode: SSL verification disabled, all origins allowed")
+        
+        await asyncio.Future()  # run forever
+        
     except Exception as e:
         logging.error(f"Failed to start server: {e}", exc_info=True)
         raise

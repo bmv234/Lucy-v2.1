@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     mecab \
     libmecab-dev \
     mecab-ipadic-utf8 \
+    liblzma-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Download and build Python 3.10.12 from source
@@ -57,7 +58,7 @@ RUN pip3 install --no-cache-dir -r melo_requirements.txt
 COPY . .
 
 # Generate SSL certificates
-RUN openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/CN=localhost"
+RUN openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/CN=*"
 
 # Create startup script
 RUN echo '#!/bin/bash\n\
