@@ -49,7 +49,7 @@ def synthesize():
         
         logger.info("Forwarding request to TTS server...")
         tts_response = session.post(
-            'https://localhost:6001/synthesize',
+            'https://localhost:5050/synthesize',
             json=request_data,
             timeout=30  # Add timeout
         )
@@ -122,17 +122,17 @@ if __name__ == '__main__':
     print(f"\nLucy v4 Server Running!")
     print(f"======================")
     print(f"Local Access:")
-    print(f"Teacher's page: https://localhost:6000")
-    print(f"Student's page: https://localhost:6000/student")
+    print(f"Teacher's page: https://localhost:5000")
+    print(f"Student's page: https://localhost:5000/student")
     print(f"\nNetwork Access:")
-    print(f"Teacher's page: https://{local_ip}:6000")
-    print(f"Student's page: https://{local_ip}:6000/student")
+    print(f"Teacher's page: https://{local_ip}:5000")
+    print(f"Student's page: https://{local_ip}:5000/student")
     print(f"======================\n")
     
     # Run the Flask server with SSL
     app.run(
         host='0.0.0.0',
-        port=6000,
+        port=5000,
         ssl_context=ssl_context,
         debug=True
     )

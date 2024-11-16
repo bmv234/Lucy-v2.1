@@ -76,7 +76,7 @@ wait -n\n\
 exit $?' > /app/start.sh && chmod +x /app/start.sh
 
 # Expose ports
-EXPOSE 6000 9765 6050
+EXPOSE 5000 8443 5050
 
 # Run the startup script
 CMD ["/app/start.sh"]

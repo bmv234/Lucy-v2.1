@@ -11,7 +11,7 @@ docker run -d --name lucy-app \
     --ipc=host \
     --ulimit memlock=-1 \
     --ulimit stack=67108864 \
-    -p 6000:6000 \
-    -p 9765:9765 \
-    -p 6050:6050 \
+    -p 5000:5000 \
+    -p 8443:8443 \
+    -p 5050:5050 \
     lucy-app

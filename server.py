@@ -158,9 +158,9 @@ def get_allowed_origins():
     # Allow connections from localhost and IP on common development ports with HTTPS
     ip = socket.gethostbyname(socket.gethostname())
     return [
-        f"https://localhost:6000",
-        f"https://127.0.0.1:6000",
-        f"https://{ip}:6000",
+        f"https://localhost:5000",
+        f"https://127.0.0.1:5000",
+        f"https://{ip}:5000",
         f"https://localhost:3000",
         f"https://127.0.0.1:3000",
         f"https://{ip}:3000",
@@ -168,15 +168,15 @@ def get_allowed_origins():
         f"https://127.0.0.1:8000",
         f"https://{ip}:8000",
         # Add HTTP versions for development
-        f"http://localhost:6000",
-        f"http://127.0.0.1:6000",
-        f"http://{ip}:6000",
+        f"http://localhost:5000",
+        f"http://127.0.0.1:5000",
+        f"http://{ip}:5000",
         f"http://localhost:3000",
         f"http://127.0.0.1:3000",
         f"http://{ip}:3000",
         f"http://localhost:8000",
         f"http://127.0.0.1:8000",
-        f"http://{ip}:8000"
+        f"http://{ip}:8000",
         f"http://localhost:9000",
         f"http://127.0.0.1:9000",
         f"http://{ip}:9000"
@@ -197,7 +197,7 @@ async def main():
         async with websockets.serve(
             handle_client,
             "0.0.0.0",  # Listen on all interfaces
-            9765,
+            8443,
             ssl=ssl_context,
             origins=get_allowed_origins(),
             ping_interval=20,
@@ -205,8 +205,8 @@ async def main():
             max_size=None,  # No message size limit
             compression=None  # Disable compression for better compatibility
         ) as server:
-            logging.info(f"WebSocket server started on wss://{ip}:9765")
-            logging.info(f"Also accessible via wss://localhost:9765")
+            logging.info(f"WebSocket server started on wss://{ip}:8443")
+            logging.info(f"Also accessible via wss://localhost:8443")
             logging.info(f"Allowed origins: {get_allowed_origins()}")
             await asyncio.Future()  # run forever
     except Exception as e:
