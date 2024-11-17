@@ -12,8 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPlaying = false;
     let currentAudio = null;
 
-    // MeloTTS API configuration
-    const API_URL = 'http://localhost:5050/api/v1/synthesize';
+    // MeloTTS API configuration - using relative URL
+    const API_URL = '/synthesize';
     const API_KEY = 'test_key';
 
     // BroadcastChannel for receiving translations

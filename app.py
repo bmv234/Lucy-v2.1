@@ -23,6 +23,10 @@ app = Flask(__name__, static_folder='.')
 # Allow CORS from any origin for development
 CORS(app, resources={r"/*": {"origins": "*"}})
 
+# Get the local IP address for network access
+hostname = socket.gethostname()
+local_ip = socket.gethostbyname(hostname)
+
 @app.route('/')
 def serve_teacher():
     """Serve the teacher's page"""
@@ -44,13 +48,13 @@ def synthesize():
         request_data = request.get_json()
         logger.info(f"Received TTS request: {request_data}")
 
-        # Forward the request to the TTS server
+        # Forward the request to the TTS server using the server's IP
         session = requests.Session()
         session.verify = False  # Disable SSL verification for local development
         
         logger.info("Forwarding request to TTS server...")
         tts_response = session.post(
-            'https://localhost:5050/synthesize',
+            f'https://{local_ip}:5050/synthesize',
             json=request_data,
             timeout=30  # Add timeout
         )
@@ -112,10 +116,6 @@ def serve_files(path):
     return send_from_directory('.', path)
 
 if __name__ == '__main__':
-    # Get the local IP address for network access
-    hostname = socket.gethostname()
-    local_ip = socket.gethostbyname(hostname)
-    
     # SSL context with more permissive settings for development
     ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     ssl_context.load_cert_chain('cert.pem', 'key.pem')
